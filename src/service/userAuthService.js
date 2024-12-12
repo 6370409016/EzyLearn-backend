@@ -20,7 +20,7 @@ const registerUser = asyncHandler(async (userBody) => {
             throw error;
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
-            const user = await createUser({ name: userBody.name, email: userBody.email, password: hashPassword, role: userBody.role || '' });
+            const user = await createUser({ name: userBody.name, email: userBody.email, password: hashPassword, role: userBody.role || 'user' });
             return user;
         }
 
@@ -37,6 +37,7 @@ const loginUser = asyncHandler(async (userBody) => {
     try {
         const isUserPresent = await findByEmailId(email);
         if (isUserPresent && (await bcrypt.compare(password, isUserPresent.password))) {
+            
             const accessToken = generateAccessToken(isUserPresent._id);
             const refreshToken = generateRefreshToken(isUserPresent._id);
 

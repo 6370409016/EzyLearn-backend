@@ -1,4 +1,6 @@
 const UserCourse = require('../model/userCourseModel');
+const EnrolledCourses = require('../model/enrolledCourseModel');
+
 
 const getCourses = async () => {
     try {
@@ -32,4 +34,35 @@ const getCourseDetail = async (id) => {
     }
 }
 
-module.exports = { getCourses, deleteCourseById, createCourse, getCourseDetail };
+const getMyCourse = async (id) => {
+    try {
+        return await UserCourse.find({ user_id: id });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const findCourseById = async (id) => {
+    try {
+        return await EnrolledCourses.findOne({ course_id: id });
+    } catch (error) {
+        console.log(error);
+    }
+}
+const createEnrolledCourse = async (data) => {
+    try {
+        return await EnrolledCourses.create(data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const getEnrolledCourses = async (id) => {
+    try {
+        return await EnrolledCourses.find({ user_id: id });
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = { getCourses, deleteCourseById, createCourse, getCourseDetail, getMyCourse, findCourseById, createEnrolledCourse, getEnrolledCourses };

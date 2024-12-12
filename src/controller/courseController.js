@@ -1,6 +1,6 @@
 const express = require('express');
 const asyncHandler = require('express-async-handler');
-const { getAllCourses, deleteCourse, createCourses, getCourseInfo } = require('../service/courseService');
+const { getAllCourses, deleteCourse, createCourses, getCourseInfo, getMyCourseDetails, registerEnrolled, getEnrolledCourseDetails } = require('../service/courseService');
 
 
 
@@ -65,4 +65,47 @@ const getCourseDetails = async (req, res) => {
     }
 }
 
-module.exports = { createCourse, getCourses, deleteCourseById, getCourseDetails };
+const myCourseInfo = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const response = await getMyCourseDetails(id);
+        if (response) {
+            res.json({ response });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const createEnrolledCourse = async (req, res) => {
+    const { user_id, course_id, title, thumbnail, author, lessons, catagory } = req.body;
+
+    if (!user_id || !course_id || !title || !thumbnail || !author || !lessons || !catagory) {
+        res.status(400);
+        throw new Error('All feilds are mandatory');
+    }
+
+    try {
+        const response = await registerEnrolled(req.body);
+        if (response) {
+            res.status(200).json({ message: 'You are successfully enrolled the course' });
+        }
+    } catch (error) {
+        if (error) {
+            return res.status(409).json({ message: error.message });
+        }
+    }
+}
+
+const getEnrolledCoursesInfo = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const response = await getEnrolledCourseDetails(id);
+        if (response) {
+            res.json(response);
+        }
+    } catch (error) {
+        return res.status(400).json({ message: error })
+    }
+}
+module.exports = { createCourse, getCourses, deleteCourseById, getCourseDetails, myCourseInfo, createEnrolledCourse, getEnrolledCoursesInfo };

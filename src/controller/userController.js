@@ -76,6 +76,21 @@ const userLogin = asyncHandler(async (req, res) => {
 
 });
 
+const logOut = async (req, res) => {
+    try {
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: true, 
+            sameSite: 'Strict',
+            path: '/',
+        });
+
+        return res.status(200).json({ message: "Successfully logged out." });
+    } catch (error) {
+        return res.status(500).json({ message: error })
+    }
+}
+
 const handleRefreshToken = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
@@ -135,102 +150,7 @@ const githubAuthCallback = (req, res, next) => {
 
 
 
-//@desc get all courses 
-//@ route POST /api/users/
-//@access public
-const getAllCourses = asyncHandler(async (req, res) => {
-
-    const courses = await UserCourses.find();
-    res.status(200).json({ courses: courses });
-    // res.status(200).json({ message: "Get your all courses" });
-})
-
-//@desc a course detials 
-//@ route POST /api/users/:id
-//@access public
-const getACourse = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const courseDetails = await UserCourses.findOne({ _id: id });
-
-        if (courseDetails) {
-            res.status(200).json({ courseDetails: courseDetails });
-        } else {
-            res.status(400);
-            throw new Error('Pass wrong course id');
-        }
-
-    } catch (e) {
-        console.log(e);
-    }
-
-})
-
-//@desc all courses enrolled by the user
-//@ route POST /api/users/mycourses/:id
-//@access public
-const MyCourses = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const response = await UserEnrolledCourses.find({ user_id: id });
-        if (response) {
-            res.status(200).json({ mycourses: response });
-        }
-
-
-    }
-    catch (e) {
-        console.log(e);
-    }
-})
-
-//@desc post the course
-//@ route POST /api/users/:id
-//@access public
-const postMyCourse = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const { title, author, catagory, description, assignment, quize, lessons, thumbnail } = req.body;
-
-    if (!title || !author || !catagory || !description || !lessons || !thumbnail) {
-        res.status(400);
-        throw new Error('post my course');
-    }
-
-
-    const courseAvailable = await UserEnrolledCourses.findOne({ user_id: id });
-
-    if (courseAvailable) {
-        res.status(400);
-        throw new Error('User is already enrolled the course');
-    }
-    const course = await UserEnrolledCourses.create({
-        user_id: id,
-        title,
-        author,
-        catagory,
-        thumbnail,
-        description,
-        assignment,
-        quize,
-        lessons
-    });
-
-    if (course) {
-        res.status(200).json({ message: "Course saved Successfully" })
-    } else {
-        res.status(400);
-        throw new Error('Course data is invalid');
-    }
-
-
-
-
-});
-
 
 module.exports = {
-    userRegister, userLogin, googleAuth, googleAuthCallback, getAllCourses, getACourse, postMyCourse, MyCourses
-    , githubAuth, githubAuthCallback, handleRefreshToken
+    userRegister, userLogin, googleAuth, googleAuthCallback, githubAuth, githubAuthCallback, handleRefreshToken, logOut
 };
